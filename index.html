@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Shift – Healing Minez</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card-bg: #ffffff;
+      --border-subtle: #e0e0e6;
+      --text-main: #333333;
+
+      --deck-accent: #cab8ff;
+      --deck-accent-soft: #ffc6ff;
+      --deck-accent-deep: #5a4ad6;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top, #fdf1ff, #f5f5f7);
+      color: var(--text-main);
+      padding: 1rem;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 980px;
+      background: var(--card-bg);
+      border-radius: 22px;
+      box-shadow: 0 22px 60px rgba(0,0,0,0.09);
+      padding: 1.75rem 1.9rem 1.9rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .logo-main {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      object-fit: cover;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .title-block p {
+      margin: 0.25rem 0 0;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+
+    .brand-line {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      opacity: 0.72;
+      margin-top: 0.25rem;
+    }
+
+    .mode-toggle {
+      display: inline-flex;
+      border-radius: 999px;
+      background: #f3f0ff;
+      padding: 0.15rem;
+      border: 1px solid #e2ddff;
+    }
+
+    .mode-btn {
+      border: none;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      background: transparent;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .mode-btn.active {
+      background: #ffffff;
+      color: var(--deck-accent-deep);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transform: translateY(-1px);
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .deck-select-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    select {
+      padding: 0.3rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid #ddd8ff;
+      background: #f7f5ff;
+      font-size: 0.84rem;
+      outline: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 3.2fr) minmax(0, 2.3fr);
+      gap: 1.3rem;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 780px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card-shell {
+      background: linear-gradient(145deg, #faf4ff, #fdfbff);
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 1.1rem;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      min-height: 270px;
+    }
+
+    .game-card {
+      width: 100%;
+      max-width: 460px;
+      background: linear-gradient(145deg, #ffffff 0%, #fef7ff 40%, #f7f4ff 100%);
+      border-radius: 18px;
+      border: 1px solid #e0defa;
+      box-shadow: 0 14px 30px rgba(133, 124, 255, 0.2);
+      padding: 1.15rem 1.35rem 1.3rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .game-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.8), transparent 55%),
+        radial-gradient(circle at bottom left, rgba(255,255,255,0.8), transparent 55%);
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .game-card::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      bottom: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--deck-accent), var(--deck-accent-soft), var(--deck-accent-deep));
+      opacity: 0.95;
+    }
+
+    .game-card.revealed {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 44px rgba(0,0,0,0.22);
+      border-color: var(--deck-accent);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-left-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .card-deck-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      background: radial-gradient(circle at top, var(--deck-accent-soft), #ffffff);
+      border: 1px solid var(--deck-accent);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.09);
+    }
+
+    .card-tag {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 0.18rem 0.6rem;
+      border-radius: 999px;
+      background: radial-gradient(circle at top left, var(--deck-accent-soft), #f4f1ff);
+      color: #4b3dd6;
+      border: 1px solid #e3ddff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-level {
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    .card-prompt {
+      margin: 0.2rem 0 1rem;
+      font-size: 0.98rem;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-note {
+      margin: 0 0 0.6rem;
+      font-size: 0.8rem;
+      color: #666;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-section-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      opacity: 0.6;
+      margin-bottom: 0.3rem;
+    }
+
+    .card-steps {
+      list-style: decimal;
+      padding-left: 1.1rem;
+      margin: 0 0 0.8rem;
+      font-size: 0.82rem;
+      color: #555;
+    }
+
+    .card-steps li:not(:last-child) {
+      margin-bottom: 0.2rem;
+    }
+
+    .card-mode-hint {
+      font-size: 0.78rem;
+      color: #555;
+      background: #f9f7ff;
+      border-radius: 10px;
+      border: 1px dashed #ded7ff;
+      padding: 0.4rem 0.6rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .affirm-wrap {
+      margin-top: 0.1rem;
+      padding: 0.6rem 0.8rem 0.7rem;
+      border-radius: 14px;
+      border: 1px dashed #d3ccff;
+      background: rgba(245, 242, 255, 0.98);
+      position: relative;
+      z-index: 1;
+    }
+
+    .affirm-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.65;
+      margin-bottom: 0.15rem;
+    }
+
+    .affirmation-text svg {
+      width: 100%;
+      height: 40px;
+    }
+
+    .affirm-plain {
+      font-size: 0.9rem;
+      color: #444;
+      font-style: italic;
+      margin-top: 0.05rem;
+    }
+
+    .affirm-footer-note {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      color: #777;
+    }
+
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      font-size: 0.86rem;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 0.42rem 0.9rem;
+      font-size: 0.86rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--deck-accent), var(--deck-accent-soft));
+      color: #231b57;
+      box-shadow: 0 8px 18px rgba(121, 106, 255, 0.28);
+    }
+
+    .btn-secondary {
+      background: #f1f1f6;
+      color: #333;
+      border: 1px solid #dedee8;
+    }
+
+    .btn-large {
+      padding: 0.6rem 1.3rem;
+      font-size: 0.95rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.08);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .pill-info {
+      padding: 0.5rem 0.75rem;
+      border-radius: 12px;
+      background: #faf9ff;
+      border: 1px dashed #ddd8ff;
+      font-size: 0.8rem;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: #444;
+    }
+
+    .affirm-svg-text {
+      fill: none;
+      stroke: var(--deck-accent-deep);
+      stroke-width: 0.8;
+      font-family: "Segoe Script","Dancing Script","Pacifico",cursive;
+    }
+
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      font-size: 1.1rem;
+      opacity: 0;
+      animation: sparkleUp 900ms ease-out forwards;
+      z-index: 9999;
+    }
+
+    @keyframes sparkleUp {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.9) translateY(6px);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.15) translateY(-22px);
+      }
+    }
+
+    /* START SCREEN */
+
+    .start-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(255, 208, 255, 0.7), rgba(54, 31, 99, 0.88));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      z-index: 999;
+      backdrop-filter: blur(10px);
+    }
+
+    .start-overlay.hidden {
+      display: none;
+    }
+
+    .start-card {
+      max-width: 560px;
+      width: 100%;
+      background: linear-gradient(145deg, #ffffff, #f9f3ff);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.45);
+      padding: 1.7rem 1.8rem 1.6rem;
+      position: relative;
+      overflow: hidden;
+      color: #2d244f;
+    }
+
+    .start-card::before,
+    .start-card::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(18px);
+      opacity: 0.55;
+      animation: floatOrb 9s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    .start-card::before {
+      width: 200px;
+      height: 200px;
+      top: -40px;
+      right: -60px;
+      background: radial-gradient(circle, rgba(255,198,255,0.9), transparent 60%);
+    }
+
+    .start-card::after {
+      width: 220px;
+      height: 220px;
+      bottom: -60px;
+      left: -80px;
+      background: radial-gradient(circle, rgba(189,178,255,0.95), transparent 65%);
+      animation-delay: 1.2s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(10px, -10px, 0); }
+    }
+
+    .start-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo-start {
+      width: 88px;
+      height: 88px;
+      border-radius: 20px;
+      object-fit: cover;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.45);
+      margin-bottom: 0.8rem;
+    }
+
+    .start-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(255,255,255,0.9);
+      margin-bottom: 0.6rem;
+    }
+
+    .start-title {
+      font-size: 1.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin: 0 0 0.2rem;
+    }
+
+    .start-subtitle {
+      margin: 0 0 0.8rem;
+      font-size: 0.95rem;
+      max-width: 430px;
+      line-height: 1.5;
+    }
+
+    .start-small {
+      font-size: 0.78rem;
+      opacity: 0.92;
+      margin-bottom: 0.7rem;
+    }
+
+    .start-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .start-footnote {
+      font-size: 0.75rem;
+      opacity: 0.85;
+      margin-bottom: 0.6rem;
+    }
+
+    .start-list-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      opacity: 0.85;
+      margin: 0.3rem 0 0.25rem;
+    }
+
+    .start-list {
+      padding-left: 1rem;
+      margin: 0;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+
+    .start-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.6rem;
+    }
+
+    .start-chip {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    @media (max-width: 600px) {
+      .start-card {
+        padding: 1.4rem 1.3rem 1.3rem;
+      }
+      .start-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- START SCREEN -->
+  <div class="start-overlay" id="start-overlay">
+    <div class="start-card">
+      <div class="start-content">
+        <img src="healing-minez-logo.png" alt="Healing Minez Logo" class="logo-start" />
+        <div class="start-badge">
+          ✨ A Healing Minez Experience · Master Edition
+        </div>
+        <h1 class="start-title">THE SHIFT</h1>
+        <p class="start-subtitle">
+          Are you ready to experience <b>The Shift</b>?  
+          A guided space for self-awareness, healing, and evolving into the version of you
+          you’ve imagined — but haven’t quite known how to make your reality.
+        </p>
+        <p class="start-small">
+          This isn’t a test. It’s a sacred, playful space for honest conversations with yourself,
+          your partner, or your community.
+        </p>
+
+        <div class="start-actions">
+          <button class="btn btn-primary btn-large" id="start-solo-btn" type="button">
+            🌙 Begin Today’s Shift · Solo
+          </button>
+          <button class="btn btn-secondary btn-large" id="start-group-btn" type="button">
+            🌌 Begin Today’s Shift · Group
+          </button>
+        </div>
+
+        <p class="start-footnote">
+          <b>What is The Shift?</b>  
+          It’s a soul-led journey of self-awareness, healing conversations, and mindset shifts —
+          so you can slowly step into the life, relationships, and inner peace you’ve been craving.
+        </p>
+
+        <div class="start-list-title">Inside you’ll explore:</div>
+        <ul class="start-list">
+          <li>Deep inner work, shadow work, and self-compassion</li>
+          <li>Connection, intimacy, and healing communication with others</li>
+          <li>Inner child joy, future-self embodiment, and belief reframes</li>
+        </ul>
+
+        <div class="start-chip-row">
+          <div class="start-chip">🌙 Solo Deep Work</div>
+          <div class="start-chip">💞 Couples Healing</div>
+          <div class="start-chip">🧸 Inner Child Joy</div>
+          <div class="start-chip">🌑 Shadow Work</div>
+          <div class="start-chip">🌿 Circles & Community</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app">
+    <header>
+      <div class="header-left">
+        <img src="healing-minez-logo.png" alt="Healing Minez Logo" class="logo-main" />
+        <div class="title-block">
+          <h1>THE SHIFT – MASTER EDITION</h1>
+          <p>Are you ready to experience The Shift? A guided space for self-awareness, healing,
+             and real conversation — solo, with a partner, or in community.</p>
+          <div class="brand-line">A HEALING MINEZ EXPERIENCE</div>
+        </div>
+      </div>
+      <div class="mode-toggle" aria-label="Choose game mode">
+        <button class="mode-btn active" data-mode="solo">Solo</button>
+        <button class="mode-btn" data-mode="group">Group / Circle</button>
+      </div>
+    </header>
+
+    <div class="controls-row">
+      <div class="deck-select-group">
+        <span>Deck:</span>
+        <select id="deck-select">
+          <option value="soloInner">Solo – Deep Inner Work</option>
+          <option value="groupCircle">Group / Circle – Connection & Conversation</option>
+          <option value="couples">Couples – Relationship Healing</option>
+          <option value="innerChild">Inner Child – Reparenting & Joy</option>
+          <option value="shadowWork">Shadow Work – Deep Roots</option>
+          <option value="compassion">Compassion – Softening & Kindness</option>
+          <option value="reframe">Mindset Reframe – Belief Shifts</option>
+          <option value="becoming">Becoming – Future Self</option>
+          <option value="connection">Connection – Shared Moments</option>
+          <option value="dualMode">Universal – Any Mode Deck</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="draw-btn" type="button">
+          🔮 Reveal Next Shift
+        </button>
+        <button class="btn btn-secondary" id="reshuffle-btn" type="button">
+          ♻ Refresh the Energy
+        </button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <section class="card-shell">
+        <article class="game-card" aria-live="polite" id="game-card">
+          <div class="card-top">
+            <div class="card-left-meta">
+              <span class="card-deck-icon" id="card-deck-icon">🌙</span>
+              <span class="card-tag" id="card-category">Deck not drawn yet</span>
+            </div>
+            <span class="card-level" id="card-level"></span>
+          </div>
+
+          <p class="card-prompt" id="card-prompt">
+            Choose a deck and click “Reveal Next Shift” to begin.
+          </p>
+
+          <p class="card-note" id="card-note">
+            This space is a mirror, not a test. There are no wrong answers here.
+          </p>
+
+          <div id="card-steps-wrap" style="display:none;">
+            <div class="card-section-title">Try this</div>
+            <ol class="card-steps" id="card-steps"></ol>
+          </div>
+
+          <div class="card-mode-hint" id="card-mode-hint">
+            In Solo Mode, answer gently and honestly. You can speak out loud or write in a journal.
+          </div>
+
+          <div class="affirm-wrap">
+            <div class="affirm-label">Whisper this softly or say it within</div>
+            <div class="affirmation-text">
+              <svg viewBox="0 0 400 40" xmlns="http://www.w3.org/2000/svg">
+                <text x="200" y="26" text-anchor="middle"
+                      class="affirm-svg-text" id="affirmation-text">
+                  I am open to a new way of seeing this.
+                </text>
+              </svg>
+            </div>
+            <div class="affirm-plain" id="affirmation-text-plain">
+              I am open to a new way of seeing this.
+            </div>
+            <div class="affirm-footer-note">
+              Repeat it 2–3 times, either out loud in a soft voice or quietly in your mind.
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <aside class="side-panel">
+        <div class="pill-info" id="deck-description">
+          <b>Solo – Deep Inner Work:</b> For private emotional insight, healing, and gentle self-awareness.
+        </div>
+
+        <div class="hint">
+          <b>How to play:</b><br/>
+          1. Choose <b>Solo</b> or <b>Group / Circle</b> at the top (or from the start screen).<br/>
+          2. Pick a <b>deck</b> that fits the moment.<br/>
+          3. Click <b>Reveal Next Shift</b> and read the prompt slowly.<br/>
+          4. Answer out loud, in your mind, with a partner, or in a journal.<br/>
+          5. Whisper the affirmation softly or say it within a few times, feeling it in your body.<br/>
+          6. When you feel ready, refresh the energy or draw another card.
+        </div>
+
+        <div class="status" id="status-message">
+          Deck loaded. Reveal your first Shift when you’re ready.
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // ---- deck themes (icon + colors) ----
+    const deckThemes = {
+      soloInner: {
+        icon: "🌙",
+        accent: "#cab8ff",
+        accentSoft: "#f3e9ff",
+        accentDeep: "#5a4ad6"
+      },
+      groupCircle: {
+        icon: "🌿",
+        accent: "#b4d8c3",
+        accentSoft: "#e5f5ea",
+        accentDeep: "#2f6b4f"
+      },
+      couples: {
+        icon: "💞",
+        accent: "#ffb6c9",
+        accentSoft: "#ffe3ec",
+        accentDeep: "#c23764"
+      },
+      innerChild: {
+        icon: "🧸",
+        accent: "#ffcf8f",
+        accentSoft: "#fff1d9",
+        accentDeep: "#e08a00"
+      },
+      shadowWork: {
+        icon: "🌑",
+        accent: "#b38add",
+        accentSoft: "#f0e3ff",
+        accentDeep: "#4a024a"
+      },
+      compassion: {
+        icon: "✨",
+        accent: "#aedbff",
+        accentSoft: "#e3f4ff",
+        accentDeep: "#22648c"
+      },
+      reframe: {
+        icon: "🔄",
+        accent: "#ff9fb0",
+        accentSoft: "#ffe1e8",
+        accentDeep: "#d3546c"
+      },
+      becoming: {
+        icon: "🌟",
+        accent: "#dce2f0",
+        accentSoft: "#f2f4ff",
+        accentDeep: "#7178e6"
+      },
+      connection: {
+        icon: "🤝",
+        accent: "#ffb39a",
+        accentSoft: "#ffe1d8",
+        accentDeep: "#d1603a"
+      },
+      dualMode: {
+        icon: "✧",
+        accent: "#f8e5a6",
+        accentSoft: "#fff6d8",
+        accentDeep: "#c89b1e"
+      }
+    };
+
+    let currentTheme = deckThemes.soloInner;
+
+    function applyDeckTheme(deckKey) {
+      const theme = deckThemes[deckKey] || deckThemes.soloInner;
+      currentTheme = theme;
+      document.documentElement.style.setProperty("--deck-accent", theme.accent);
+      document.documentElement.style.setProperty("--deck-accent-soft", theme.accentSoft);
+      document.documentElement.style.setProperty("--deck-accent-deep", theme.accentDeep);
+      const iconEl = document.getElementById("card-deck-icon");
+      if (iconEl) iconEl.textContent = theme.icon;
+    }
+
+    // ---- decks & cards ----
+    const decks = {
+      // 1) Solo – Deep Inner Work
+      soloInner: {
+        name: "Solo – Deep Inner Work",
+        mode: "solo",
+        description:
+          "Deep emotional insight, self-awareness, inner healing, and truth-telling with yourself.",
+        cards: [
+          {
+            category: "Emotional Check-In",
+            level: "Soft",
+            prompt: "What emotion has been quietly sitting underneath everything lately?",
+            note: "Often the quietest emotions are the most honest ones.",
+            steps: [
+              "Name the emotion without judging it.",
+              "Ask it: “What are you here to show me?”",
+              "Let the answer arrive softly."
+            ],
+            affirmation: "I honor the truth rising within me."
+          },
+          {
+            category: "Body Truth",
+            level: "Soft",
+            prompt: "If your body could speak in a full sentence right now, what would it say?",
+            note: "The body whispers long before the mind understands.",
+            steps: [
+              "Place your hand on your chest or stomach.",
+              "Breathe once, slowly.",
+              "Listen for the first intuitive message."
+            ],
+            affirmation: "My body’s wisdom is sacred."
+          },
+          {
+            category: "Patterns Emerging",
+            level: "Core",
+            prompt: "What pattern have you noticed in yourself recently — one that feels ready to shift?",
+            note: "Awareness is already a doorway to change.",
+            steps: [
+              "Name the pattern gently.",
+              "Ask: “Where did this pattern learn to protect me?”",
+              "Thank it for its purpose."
+            ],
+            affirmation: "I release what no longer protects me."
+          },
+          {
+            category: "Inner Softening",
+            level: "Soft",
+            prompt: "What part of you is asking to be softened right now?",
+            note: "Soft does not mean weak. Soft means open.",
+            steps: [
+              "Identify the tightness or tension.",
+              "Imagine sending warmth toward that place.",
+              "Let one breath land there."
+            ],
+            affirmation: "Softness is strength."
+          },
+          {
+            category: "Emotional Honesty",
+            level: "Deep",
+            prompt: "What is one truth you’ve been avoiding because it feels too heavy to say out loud?",
+            note: "You don’t have to fix it — just name it.",
+            steps: [
+              "Say the truth softly.",
+              "Sit with the feeling without pushing it away.",
+              "Ask: “What do I need now?”"
+            ],
+            affirmation: "I can hold my truth gently."
+          },
+          {
+            category: "Desire Awareness",
+            level: "Core",
+            prompt: "What desire has been nudging you lately — the one you keep pushing aside?",
+            note: "Desires are messages from the future you.",
+            steps: [
+              "Write or say the desire plainly.",
+              "Ask what small step would honor it.",
+              "Commit to one small movement."
+            ],
+            affirmation: "My desires are divine instructions."
+          },
+          {
+            category: "Fear Tenderness",
+            level: "Deep",
+            prompt: "What fear has been quietly shaping your choices?",
+            note: "Fear is often just a younger part trying to keep you safe.",
+            steps: [
+              "Name the fear.",
+              "Say: “I see you. Thank you.”",
+              "Offer it reassurance."
+            ],
+            affirmation: "I walk with fear, not for it."
+          },
+          {
+            category: "Boundaries Within",
+            level: "Core",
+            prompt: "Where have you been abandoning yourself to keep the peace?",
+            note: "Every yes that hurts you is a no you didn’t speak.",
+            steps: [
+              "Identify the moment.",
+              "Feel what your true boundary was.",
+              "Say: “Next time, I choose me.”"
+            ],
+            affirmation: "My peace is a priority."
+          },
+          {
+            category: "Identity Truth",
+            level: "Deep",
+            prompt: "Who are you becoming — beneath all the noise and expectations?",
+            note: "This answer comes from the soul, not the mind.",
+            steps: [
+              "Close your eyes.",
+              "Visualize the version of you you’re growing into.",
+              "Notice one defining quality."
+            ],
+            affirmation: "I am returning to myself."
+          },
+          {
+            category: "Letting Go",
+            level: "Core",
+            prompt: "What are you holding onto that is quietly draining you?",
+            note: "Letting go doesn’t mean forgetting — it means freeing yourself.",
+            steps: [
+              "Identify the weight.",
+              "Say: “I release my grip.”",
+              "Imagine handing it to the universe."
+            ],
+            affirmation: "I surrender what no longer serves my spirit."
+          }
+        ]
+      },
+
+      // 2) Group / Circle
+      groupCircle: {
+        name: "Group / Circle – Connection & Conversation",
+        mode: "group",
+        description:
+          "For circles, retreats, healing spaces, and honest group connection. Gentle but meaningful sharing.",
+        cards: [
+          {
+            category: "Opening",
+            level: "Soft",
+            prompt: "Share one word that describes how you arrived here today.",
+            note: "Your word doesn’t need to make sense — it just needs to be honest.",
+            steps: [
+              "Speak the word softly.",
+              "Let it be witnessed.",
+              "Take a breath together as a group."
+            ],
+            affirmation: "My presence here matters."
+          },
+          {
+            category: "Heart Check-In",
+            level: "Soft",
+            prompt: "If your heart had a color today, what color would it be — and why?",
+            note: "You can keep the “why” as simple or deep as you like.",
+            steps: [
+              "Name the color.",
+              "Share what it represents.",
+              "Listen without response."
+            ],
+            affirmation: "My heart speaks in many languages."
+          },
+          {
+            category: "What You’re Carrying",
+            level: "Core",
+            prompt: "Share one thing you walked in carrying — physically, mentally, or emotionally.",
+            note: "No fixing, no advice. Just witness each other.",
+            steps: [
+              "Speak the weight.",
+              "Allow silence after each share.",
+              "Hold soft compassion."
+            ],
+            affirmation: "I am held in this moment."
+          },
+          {
+            category: "Soft Truth",
+            level: "Soft",
+            prompt: "Finish the sentence: “Lately, I’ve been feeling…”",
+            note: "You can be vague if needed. Your truth can be as precise or general as feels safe.",
+            steps: [
+              "Share the feeling.",
+              "Let your voice be heard.",
+              "Allow others to simply witness."
+            ],
+            affirmation: "My emotions deserve space."
+          },
+          {
+            category: "Gratitude Round",
+            level: "Light",
+            prompt: "Share one thing you are grateful for today — big or small.",
+            note: "Even the tiniest gratitudes count.",
+            steps: [
+              "Speak your gratitude.",
+              "Let others nod or hold quiet space.",
+              "Breathe together."
+            ],
+            affirmation: "Gratitude opens my whole being."
+          },
+          {
+            category: "Name Your Need",
+            level: "Core",
+            prompt: "What is one thing you need from this space right now?",
+            note: "Needs can be emotional, energetic, or practical.",
+            steps: [
+              "State your need.",
+              "Let it be acknowledged.",
+              "Trust the group to hold it."
+            ],
+            affirmation: "My needs deserve to be met."
+          },
+          {
+            category: "Self-Celebration",
+            level: "Soft",
+            prompt: "Share something you’ve done recently that you’re proud of, even if it feels small.",
+            note: "Let yourself be celebrated.",
+            steps: [
+              "Speak your moment.",
+              "Hold space for recognition.",
+              "Receive it fully."
+            ],
+            affirmation: "I honor my growth."
+          },
+          {
+            category: "Release Round",
+            level: "Core",
+            prompt: "What are you ready to put down emotionally?",
+            note: "It can be small — small releases still free your heart.",
+            steps: [
+              "Name the release.",
+              "Visualize placing it down.",
+              "Let the group carry the moment with you."
+            ],
+            affirmation: "I surrender what weighs me down."
+          }
+        ]
+      },
+
+      // 3) Couples
+      couples: {
+        name: "Couples – Relationship Healing & Intimacy",
+        mode: "group",
+        description:
+          "For pairs and couples: emotional safety, communication, intimacy, and gentle repair.",
+        cards: [
+          {
+            category: "Check-In",
+            level: "Soft",
+            prompt: "Partner A: Share one feeling you’ve been carrying lately in this relationship.",
+            note: "Partner B only listens — no fixing, no defending.",
+            steps: [
+              "Partner A shares for 1–2 minutes.",
+              "Partner B reflects back what they heard.",
+              "Switch roles."
+            ],
+            affirmation: "We are learning how to hear each other."
+          },
+          {
+            category: "Love Language",
+            level: "Light",
+            prompt: "What is one way you most feel loved right now?",
+            note: "Try to be specific and current, not general.",
+            steps: [
+              "Each partner shares one example.",
+              "Name one small way you could offer that this week.",
+              "Thank each other."
+            ],
+            affirmation: "We choose to speak each other’s hearts."
+          },
+          {
+            category: "Repair",
+            level: "Core",
+            prompt: "Share one moment that still feels tender between you — without blame.",
+            note: "Use “I felt…” instead of “You did…”.",
+            steps: [
+              "Partner A names the moment and feeling.",
+              "Partner B listens and reflects.",
+              "Together, name one small repair action."
+            ],
+            affirmation: "We can grow through what hurt us."
+          },
+          {
+            category: "Appreciation",
+            level: "Soft",
+            prompt: "Name three things you genuinely appreciate about your partner this season.",
+            note: "Be specific and present-focused.",
+            steps: [
+              "Take turns sharing appreciations.",
+              "Let there be a pause after each one.",
+              "End with “thank you for seeing me.”"
+            ],
+            affirmation: "We see each other with kindness."
+          },
+          {
+            category: "Needs",
+            level: "Core",
+            prompt: "What is one emotional need you have in this relationship that you rarely voice?",
+            note: "Name the need, not the demand.",
+            steps: [
+              "Each partner shares one need.",
+              "The other simply says “thank you for telling me.”",
+              "Together, choose one doable step."
+            ],
+            affirmation: "Our needs are worthy of respect."
+          },
+          {
+            category: "Future Vision",
+            level: "Soft",
+            prompt: "In one sentence, describe the kind of relationship you are both becoming.",
+            note: "Focus on how it feels, not just what it looks like.",
+            steps: [
+              "Each partner shares their sentence.",
+              "Underline one word that stands out.",
+              "Name one practice that supports that vision."
+            ],
+            affirmation: "We are co-creating something sacred."
+          },
+          {
+            category: "Triggers",
+            level: "Deep",
+            prompt: "Share one situation where you feel easily triggered with each other.",
+            note: "This is about understanding, not blaming.",
+            steps: [
+              "Name the trigger gently.",
+              "Share what it reminds you of from earlier in life.",
+              "Ask: “How can we hold each other better here?”"
+            ],
+            affirmation: "We hold each other’s wounds with care."
+          },
+          {
+            category: "Play",
+            level: "Light",
+            prompt: "What is one playful or silly moment you’d like to bring back into this relationship?",
+            note: "Joy is healing medicine.",
+            steps: [
+              "Each partner shares one idea.",
+              "Pick one to schedule this week.",
+              "Commit to protecting that time."
+            ],
+            affirmation: "Our connection can be light and joyful."
+          }
+        ]
+      },
+
+      // 4) Inner Child
+      innerChild: {
+        name: "Inner Child – Reparenting & Joy",
+        mode: "any",
+        description:
+          "Connect with younger you, understand unmet needs, reclaim joy, and practice reparenting.",
+        cards: [
+          {
+            category: "Little You",
+            level: "Soft",
+            prompt: "Imagine you at 7 years old sitting beside you. What is the first thing they would say?",
+            note: "Let the answer be simple and honest.",
+            steps: [
+              "Close your eyes for a moment.",
+              "See their face and body language.",
+              "Listen to the first sentence that appears."
+            ],
+            affirmation: "I welcome my younger self with love."
+          },
+          {
+            category: "Unmet Need",
+            level: "Core",
+            prompt: "What did you long to hear or receive as a child that you rarely did?",
+            note: "You are not blaming; you are remembering.",
+            steps: [
+              "Name the need or phrase.",
+              "Say it to yourself now, in the present tense.",
+              "Let your body feel receiving it."
+            ],
+            affirmation: "I can give myself what I once needed."
+          },
+          {
+            category: "Play",
+            level: "Light",
+            prompt: "What activity used to make you lose track of time as a child?",
+            note: "It might be drawing, dancing, imagining, or something small.",
+            steps: [
+              "Name the activity.",
+              "Decide one tiny way to revisit it this week.",
+              "Protect ten minutes for it."
+            ],
+            affirmation: "Joy is still allowed for me."
+          },
+          {
+            category: "Safety",
+            level: "Soft",
+            prompt: "What did younger you need to feel safe that you can offer yourself today?",
+            note: "Safety might be routine, softness, space, or boundaries.",
+            steps: [
+              "Name one safety need.",
+              "Plan one concrete way to meet it today.",
+              "Thank yourself for showing up."
+            ],
+            affirmation: "I am a safe place for myself."
+          },
+          {
+            category: "Voice",
+            level: "Core",
+            prompt: "What opinion or truth did you learn to silence early on?",
+            note: "Your voice is allowed here.",
+            steps: [
+              "Write or say the truth out loud.",
+              "Notice any emotion that rises.",
+              "Remind yourself: “My voice matters now.”"
+            ],
+            affirmation: "My voice deserves to be heard."
+          },
+          {
+            category: "Belonging",
+            level: "Deep",
+            prompt: "When did you first feel like you didn’t fully belong?",
+            note: "Hold this memory as gently as you can.",
+            steps: [
+              "Recall the scene briefly.",
+              "Imagine sitting next to that younger you.",
+              "Tell them one sentence of comfort."
+            ],
+            affirmation: "I belong to myself."
+          },
+          {
+            category: "Permission",
+            level: "Soft",
+            prompt: "What would your inner child love to be given permission to do or feel right now?",
+            note: "Nothing is too small or too silly.",
+            steps: [
+              "Name the permission.",
+              "Say: “It’s okay. You’re allowed.”",
+              "Notice how your body responds."
+            ],
+            affirmation: "I give myself gentle permission."
+          },
+          {
+            category: "Reparenting",
+            level: "Core",
+            prompt: "If you were parenting your younger self today, what is one rule you would change?",
+            note: "Think of a rule about emotions, success, or worth.",
+            steps: [
+              "Name the old rule.",
+              "Write your new rule with kindness.",
+              "Read it slowly to yourself."
+            ],
+            affirmation: "I am becoming the caregiver I needed."
+          }
+        ]
+      },
+
+      // 5) Shadow Work
+      shadowWork: {
+        name: "Shadow Work – Deep Roots & Triggers",
+        mode: "any",
+        description:
+          "Gently explore triggers, old stories, and protective patterns with compassion and safety.",
+        cards: [
+          {
+            category: "Trigger",
+            level: "Deep",
+            prompt: "Describe a recent moment where your reaction felt bigger than the situation.",
+            note: "Big reactions often point toward old wounds.",
+            steps: [
+              "Recall what happened without shaming yourself.",
+              "Ask: “What did this remind me of?”",
+              "Notice the younger part that reacted."
+            ],
+            affirmation: "I can be curious about my triggers."
+          },
+          {
+            category: "Story",
+            level: "Core",
+            prompt: "What story about yourself shows up when you feel rejected or ignored?",
+            note: "Stories are learned, not facts.",
+            steps: [
+              "Name the story in one sentence.",
+              "Ask: “Where did I first learn this?”",
+              "Gently question if it’s fully true."
+            ],
+            affirmation: "I am more than my old stories."
+          },
+          {
+            category: "Protection",
+            level: "Core",
+            prompt: "What behavior do you use to protect yourself when you feel unsafe emotionally?",
+            note: "Every pattern started as protection.",
+            steps: [
+              "Name the behavior honestly.",
+              "Thank it for how it tried to help.",
+              "Ask: “Do I still need this in the same way?”"
+            ],
+            affirmation: "I can choose new ways to feel safe."
+          },
+          {
+            category: "Shadow Trait",
+            level: "Deep",
+            prompt: "What quality in others bothers you the most — and where might it live in you too?",
+            note: "This is an invitation to compassion, not criticism.",
+            steps: [
+              "Name the quality.",
+              "Notice where you have shown a small version of it.",
+              "Offer yourself understanding instead of shame."
+            ],
+            affirmation: "Every part of me can be met with compassion."
+          },
+          {
+            category: "Hidden Desire",
+            level: "Core",
+            prompt: "What desire do you judge yourself for having?",
+            note: "Desires are not wrong; they are information.",
+            steps: [
+              "Speak the desire quietly.",
+              "Notice where the judgment came from.",
+              "Ask: “What is this desire trying to point me toward?”"
+            ],
+            affirmation: "My desires are worthy of gentle attention."
+          },
+          {
+            category: "Fear of Being Seen",
+            level: "Deep",
+            prompt: "What part of yourself are you most afraid others will see?",
+            note: "Shame thrives in silence, not in truth.",
+            steps: [
+              "Name this part in a word or phrase.",
+              "Imagine someone looking at it with love, not disgust.",
+              "Hold that image for a moment."
+            ],
+            affirmation: "Even my hidden parts deserve light."
+          },
+          {
+            category: "Control",
+            level: "Core",
+            prompt: "Where do you cling to control because letting go feels dangerous?",
+            note: "Control is often a trauma response.",
+            steps: [
+              "Identify one area where you over-manage.",
+              "Ask: “What am I afraid will happen if I don’t?”",
+              "Offer your nervous system a breath of safety."
+            ],
+            affirmation: "I can loosen my grip and still be safe."
+          },
+          {
+            category: "Forgiveness",
+            level: "Deep",
+            prompt: "What part of your past self feels hardest to forgive?",
+            note: "You did the best you could with the tools you had.",
+            steps: [
+              "Name the version of you (age, season, moment).",
+              "Speak one sentence of understanding to them.",
+              "Let a small piece of the burden fall away."
+            ],
+            affirmation: "I offer forgiveness to who I was."
+          }
+        ]
+      },
+
+      // 6) Compassion
+      compassion: {
+        name: "Compassion – Softening & Kindness",
+        mode: "any",
+        description:
+          "For nervous-system soothing, self-kindness, emotional safety, and soft inner talk.",
+        cards: [
+          {
+            category: "Inner Critic",
+            level: "Core",
+            prompt: "What is one sentence your inner critic keeps repeating lately?",
+            note: "We are not here to argue with it — only to understand.",
+            steps: [
+              "Write or say the sentence.",
+              "Ask: “What is this voice trying to protect me from?”",
+              "Thank it, then offer a softer sentence."
+            ],
+            affirmation: "I choose a kinder voice within me."
+          },
+          {
+            category: "Self-Soothing",
+            level: "Soft",
+            prompt: "When you feel overwhelmed, what is one healthy thing that reliably soothes you?",
+            note: "Soothing can be sound, touch, movement, or stillness.",
+            steps: [
+              "Name your soothing practice.",
+              "Plan to offer it to yourself this week.",
+              "Imagine how your body will feel receiving it."
+            ],
+            affirmation: "I am allowed to comfort myself."
+          },
+          {
+            category: "Grace",
+            level: "Soft",
+            prompt: "Where have you been hard on yourself for simply being human?",
+            note: "Perfection is not required to be worthy.",
+            steps: [
+              "Name the area of self-judgment.",
+              "Say: “Of course I struggled there.”",
+              "Offer yourself one sentence of grace."
+            ],
+            affirmation: "I am worthy of gentle grace."
+          },
+          {
+            category: "Kind Mirror",
+            level: "Light",
+            prompt: "If someone who loves you deeply described you in three words, what might they say?",
+            note: "Let yourself imagine the best-case truth.",
+            steps: [
+              "Choose three words.",
+              "Say them slowly as if they’re being spoken to you.",
+              "Breathe them in."
+            ],
+            affirmation: "I allow loving reflections to reach me."
+          },
+          {
+            category: "Rest",
+            level: "Core",
+            prompt: "Where are you exhausted but still pushing yourself?",
+            note: "Rest is not laziness — it is repair.",
+            steps: [
+              "Name where you’re tired.",
+              "Identify one thing you can put down or delay.",
+              "Commit to one small act of rest."
+            ],
+            affirmation: "Rest is my right, not my reward."
+          },
+          {
+            category: "Soft Boundaries",
+            level: "Core",
+            prompt: "Where could you say “no” with kindness instead of “yes” with resentment?",
+            note: "Compassion includes yourself.",
+            steps: [
+              "Name one situation.",
+              "Practice saying a kind, clear no.",
+              "Imagine the relief in your body."
+            ],
+            affirmation: "My kindness includes my own limits."
+          },
+          {
+            category: "Celebrating Effort",
+            level: "Soft",
+            prompt: "What have you been doing your best at, even if the results aren’t perfect?",
+            note: "Effort itself is worthy of praise.",
+            steps: [
+              "Name the area.",
+              "Acknowledge the effort out loud.",
+              "Thank yourself for not giving up."
+            ],
+            affirmation: "My effort is seen and appreciated."
+          },
+          {
+            category: "Comfort Phrase",
+            level: "Soft",
+            prompt: "What is one sentence you wish someone would say to you today?",
+            note: "You can say it to yourself right now.",
+            steps: [
+              "Write or speak the sentence.",
+              "Place a hand on your heart or cheek.",
+              "Say it again slowly, as if you mean it."
+            ],
+            affirmation: "I can speak to myself with tenderness."
+          }
+        ]
+      },
+
+      // 7) Mindset Reframe
+      reframe: {
+        name: "Mindset Reframe – Belief Shifts",
+        mode: "any",
+        description:
+          "Shift limiting beliefs into softer, truer, more empowering stories with compassion.",
+        cards: [
+          {
+            category: "Old Belief",
+            level: "Core",
+            prompt: "What is a belief about yourself that feels heavy or limiting right now?",
+            note: "We are not judging the belief — only noticing it.",
+            steps: [
+              "Write the belief in one sentence.",
+              "Ask: “Who taught me this?”",
+              "Ask: “Is it absolutely, always true?”"
+            ],
+            affirmation: "I am allowed to outgrow old beliefs."
+          },
+          {
+            category: "Reframe",
+            level: "Core",
+            prompt: "Take that heavy belief and rewrite it into a softer, more realistic truth.",
+            note: "Make it believable, not fake-positive.",
+            steps: [
+              "Keep your new sentence simple.",
+              "Check if your body relaxes even 5%.",
+              "Adjust until it feels a little lighter."
+            ],
+            affirmation: "I choose thoughts that honor my truth."
+          },
+          {
+            category: "Failure",
+            level: "Soft",
+            prompt: "Where have you been calling yourself a failure when you were actually learning?",
+            note: "Failure is often feedback.",
+            steps: [
+              "Name the situation.",
+              "List three things it taught you.",
+              "Thank the lesson, not the shame."
+            ],
+            affirmation: "I am a learner, not a failure."
+          },
+          {
+            category: "Comparison",
+            level: "Soft",
+            prompt: "Who do you often compare yourself to — and what story do you tell about that?",
+            note: "Comparison hides your own path from you.",
+            steps: [
+              "Name the person or image.",
+              "Name the story you create.",
+              "Ask: “What is uniquely mine that they do not have?”"
+            ],
+            affirmation: "My path is allowed to look different."
+          },
+          {
+            category: "Scarcity",
+            level: "Core",
+            prompt: "Where do you most often feel there is “not enough” — time, love, money, energy?",
+            note: "Scarcity thoughts are trying to protect you.",
+            steps: [
+              "Name the area of scarcity.",
+              "Identify one piece of evidence of “just enough.”",
+              "Choose a slightly more spacious thought."
+            ],
+            affirmation: "There is enough for the next step."
+          },
+          {
+            category: "Identity Shift",
+            level: "Deep",
+            prompt: "What identity are you still carrying that no longer fits who you are becoming?",
+            note: "You are allowed to rewrite your role.",
+            steps: [
+              "Name the old identity (“the fixer”, “the strong one”, etc.).",
+              "Name who you are becoming instead.",
+              "Imagine stepping out of the old costume."
+            ],
+            affirmation: "I am allowed to become someone new."
+          },
+          {
+            category: "Success",
+            level: "Soft",
+            prompt: "What does success look like for you in this season, not society’s version?",
+            note: "You can define success as peace, honesty, or rest.",
+            steps: [
+              "Describe your current definition.",
+              "Delete any pieces that belong to someone else.",
+              "Circle one word that is most important."
+            ],
+            affirmation: "My definition of success is valid."
+          },
+          {
+            category: "Self-Talk",
+            level: "Core",
+            prompt: "What is one phrase you say to yourself that you would never say to a friend?",
+            note: "Notice how harsh that voice can be.",
+            steps: [
+              "Write the phrase.",
+              "Rewrite it as if you were talking to someone you love.",
+              "Practice saying the new version once today."
+            ],
+            affirmation: "I speak to myself as someone I love."
+          }
+        ]
+      },
+
+      // 8) Becoming
+      becoming: {
+        name: "Becoming – Future Self & Expansion",
+        mode: "any",
+        description:
+          "Step into who you’re becoming with identity shifts, expansion, and future-self guidance.",
+        cards: [
+          {
+            category: "Future Self",
+            level: "Core",
+            prompt: "Imagine yourself five years from now, healed and grounded. What is one thing they no longer tolerate?",
+            note: "Your future self has boundaries.",
+            steps: [
+              "Close your eyes and see them clearly.",
+              "Ask them what they’ve stopped accepting.",
+              "Write down their answer as guidance."
+            ],
+            affirmation: "I move toward the version of me I admire."
+          },
+          {
+            category: "Values",
+            level: "Soft",
+            prompt: "What are the top two values your future self lives by every day?",
+            note: "Values are your internal compass.",
+            steps: [
+              "Name the two values.",
+              "Ask: “How can I honor one of these today?”",
+              "Plan one aligned action."
+            ],
+            affirmation: "I live my life aligned with my values."
+          },
+          {
+            category: "Environment",
+            level: "Core",
+            prompt: "What does the space around your future self feel like?",
+            note: "Think of sensations: calm, vibrant, simple, creative.",
+            steps: [
+              "Describe the environment in a few words.",
+              "Choose one small change you can make to your current space.",
+              "Commit to that change within the week."
+            ],
+            affirmation: "My environment can support who I’m becoming."
+          },
+          {
+            category: "Relationships",
+            level: "Soft",
+            prompt: "How does your future self choose relationships and connections?",
+            note: "Notice their standards, not their perfection.",
+            steps: [
+              "Write three qualities they look for in relationships.",
+              "Circle one quality you can practice today.",
+              "Release one connection that pulls you away from this version."
+            ],
+            affirmation: "I choose relationships that honor my growth."
+          },
+          {
+            category: "Daily Rhythm",
+            level: "Core",
+            prompt: "What does a simple, ordinary day in your future self’s life look like?",
+            note: "Ordinary days shape extraordinary lives.",
+            steps: [
+              "Visualize their morning, afternoon, evening.",
+              "Pick one ritual you can begin now.",
+              "Schedule it like a promise."
+            ],
+            affirmation: "Small rituals create my future."
+          },
+          {
+            category: "Courage",
+            level: "Deep",
+            prompt: "What brave decision has your future self already made that you are still hesitating on?",
+            note: "Bravery can be soft and quiet.",
+            steps: [
+              "Name the decision.",
+              "Ask: “What support would I need to make this?”",
+              "Take one micro-step toward it."
+            ],
+            affirmation: "I am supported as I step into courage."
+          },
+          {
+            category: "Identity Statement",
+            level: "Core",
+            prompt: "Complete this: “I am becoming the person who…”",
+            note: "Let the sentence be specific and soul-deep.",
+            steps: [
+              "Write the sentence without overthinking.",
+              "Read it out loud twice.",
+              "Notice how your body reacts."
+            ],
+            affirmation: "Every day, I grow into this version of me."
+          },
+          {
+            category: "Legacy",
+            level: "Soft",
+            prompt: "How do you want people to feel after interacting with you?",
+            note: "This is the energy you leave behind.",
+            steps: [
+              "Choose three feeling words.",
+              "Ask: “Where can I offer one of these today?”",
+              "Act from that intention once."
+            ],
+            affirmation: "My presence is part of my legacy."
+          }
+        ]
+      },
+
+      // 9) Connection
+      connection: {
+        name: "Connection – Shared Moments & Presence",
+        mode: "any",
+        description:
+          "For friendships, families, teams, and circles. Builds warmth, presence, and emotional closeness.",
+        cards: [
+          {
+            category: "Presence",
+            level: "Soft",
+            prompt: "Who in your life makes you feel most seen, and why?",
+            note: "Let your heart remember the feeling.",
+            steps: [
+              "Name the person.",
+              "Describe one moment where you felt truly seen.",
+              "Consider telling them about it later."
+            ],
+            affirmation: "I am worthy of relationships where I am seen."
+          },
+          {
+            category: "Reaching Out",
+            level: "Light",
+            prompt: "Who have you been thinking about but not reaching out to?",
+            note: "Sometimes the gap is just a moment of courage.",
+            steps: [
+              "Name the person.",
+              "Decide on a simple message or gesture.",
+              "Plan when you’ll send it."
+            ],
+            affirmation: "I am allowed to reconnect with care."
+          },
+          {
+            category: "Receiving",
+            level: "Core",
+            prompt: "Is it easier for you to give or receive support — and why?",
+            note: "Both directions matter.",
+            steps: [
+              "Answer honestly.",
+              "Notice where the discomfort lies.",
+              "Choose one way to practice receiving this week."
+            ],
+            affirmation: "I deserve to receive as much as I give."
+          },
+          {
+            category: "Boundaries in Connection",
+            level: "Core",
+            prompt: "Where do you stay in connection at the cost of your own peace?",
+            note: "You can love people and still set limits.",
+            steps: [
+              "Name the relationship or pattern.",
+              "Identify the boundary your body is asking for.",
+              "Imagine saying it with steadiness and care."
+            ],
+            affirmation: "Healthy boundaries deepen my connections."
+          },
+          {
+            category: "Shared Joy",
+            level: "Light",
+            prompt: "What is a memory of shared laughter that still warms your heart?",
+            note: "Joy is glue for relationships.",
+            steps: [
+              "Recall the scene in detail.",
+              "Notice how your body feels remembering it.",
+              "Consider recreating a small version of that energy."
+            ],
+            affirmation: "Shared joy nourishes my relationships."
+          },
+          {
+            category: "Being Known",
+            level: "Deep",
+            prompt: "What is one thing about you most people don’t know but you wish they did?",
+            note: "You’re allowed to be known.",
+            steps: [
+              "Name the hidden truth.",
+              "Imagine sharing it with someone safe.",
+              "Decide if there is one person you could reveal this to."
+            ],
+            affirmation: "It is safe to let myself be known slowly."
+          },
+          {
+            category: "Listening",
+            level: "Soft",
+            prompt: "When you listen to others, what are you usually listening for?",
+            note: "Advice, safety, emotional cues, approval — notice your habits.",
+            steps: [
+              "Be honest with yourself.",
+              "Ask: “How would it feel to listen just to understand?”",
+              "Try that approach in your next conversation."
+            ],
+            affirmation: "I can listen in a way that creates safety."
+          },
+          {
+            category: "Community",
+            level: "Core",
+            prompt: "What kind of community does your heart crave right now?",
+            note: "Think about energy, values, and pace, not just labels.",
+            steps: [
+              "Describe the community in a few words.",
+              "List one place you might find or build it.",
+              "Take one step in that direction."
+            ],
+            affirmation: "I am worthy of nourishing community."
+          }
+        ]
+      },
+
+      // 10) Universal
+      dualMode: {
+        name: "Universal – Any Mode Deck",
+        mode: "any",
+        description:
+          "Timeless soul questions that work in solo, couples, groups, journaling, or circles.",
+        cards: [
+          {
+            category: "Current Chapter",
+            level: "Core",
+            prompt: "If this season of your life were a book chapter, what would its title be?",
+            note: "Let the title be honest, not polished.",
+            steps: [
+              "Say or write the title.",
+              "Ask: “What is this chapter teaching me?”",
+              "Share if you’re with others, or journal on it."
+            ],
+            affirmation: "Every chapter of my life has meaning."
+          },
+          {
+            category: "Lesson",
+            level: "Soft",
+            prompt: "What is life gently trying to teach you right now?",
+            note: "Lessons often repeat until we listen.",
+            steps: [
+              "Name the lesson in one sentence.",
+              "Notice where it shows up most often.",
+              "Thank life for the invitation."
+            ],
+            affirmation: "I am open to the lessons of this season."
+          },
+          {
+            category: "Grief & Gratitude",
+            level: "Deep",
+            prompt: "What are you grieving and grateful for at the same time?",
+            note: "Two truths can live together.",
+            steps: [
+              "Name the grief.",
+              "Name the gratitude.",
+              "Hold both gently for a few breaths."
+            ],
+            affirmation: "I can hold many emotions at once."
+          },
+          {
+            category: "Choice",
+            level: "Core",
+            prompt: "What is one choice you know you need to make, even if you feel afraid?",
+            note: "You do not have to act today, only acknowledge it.",
+            steps: [
+              "Name the choice.",
+              "Ask what support you would need.",
+              "Decide one small step toward clarity."
+            ],
+            affirmation: "I trust myself to make aligned choices."
+          },
+          {
+            category: "Alignment",
+            level: "Soft",
+            prompt: "Where does your life feel most aligned with your soul right now?",
+            note: "Notice what is already working.",
+            steps: [
+              "Describe this area with appreciation.",
+              "Identify what makes it feel aligned.",
+              "Look for ways to expand that feeling."
+            ],
+            affirmation: "I celebrate what is already aligned."
+          },
+          {
+            category: "Edge of Change",
+            level: "Core",
+            prompt: "Where do you feel yourself standing at the edge of a change?",
+            note: "Edges can feel both exciting and scary.",
+            steps: [
+              "Name the edge.",
+              "Acknowledge both your fear and your curiosity.",
+              "Ask: “What would support look like here?”"
+            ],
+            affirmation: "I honor the edges of my growth."
+          },
+          {
+            category: "Support System",
+            level: "Soft",
+            prompt: "Who or what supports you when things feel heavy?",
+            note: "Support can be people, practices, or beliefs.",
+            steps: [
+              "Make a short list.",
+              "Notice if anything is missing.",
+              "Commit to leaning on one support this week."
+            ],
+            affirmation: "I am not meant to carry everything alone."
+          },
+          {
+            category: "Hope",
+            level: "Soft",
+            prompt: "What is one thing you still quietly hope for?",
+            note: "Hope is a form of courage.",
+            steps: [
+              "Name the hope.",
+              "Allow yourself to feel it without shutting it down.",
+              "Ask: “What is one gentle step toward this?”"
+            ],
+            affirmation: "I allow hope to live in me."
+          }
+        ]
+      }
+    };
+
+    // ---- state ----
+    let mode = "solo";
+    let currentDeckKey = "soloInner";
+    let lastIndex = null;
+
+    // ---- DOM ----
+    const modeButtons = document.querySelectorAll(".mode-btn");
+    const deckSelect = document.getElementById("deck-select");
+    const deckDescriptionEl = document.getElementById("deck-description");
+
+    const drawBtn = document.getElementById("draw-btn");
+    const reshuffleBtn = document.getElementById("reshuffle-btn");
+
+    const categoryEl = document.getElementById("card-category");
+    const levelEl = document.getElementById("card-level");
+    const promptEl = document.getElementById("card-prompt");
+    const noteEl = document.getElementById("card-note");
+    const stepsWrap = document.getElementById("card-steps-wrap");
+    const stepsList = document.getElementById("card-steps");
+    const affirmTextEl = document.getElementById("affirmation-text");
+    const affirmPlainEl = document.getElementById("affirmation-text-plain");
+    const statusMessage = document.getElementById("status-message");
+    const gameCardEl = document.getElementById("game-card");
+    const modeHintEl = document.getElementById("card-mode-hint");
+
+    const startOverlay = document.getElementById("start-overlay");
+    const startSoloBtn = document.getElementById("start-solo-btn");
+    const startGroupBtn = document.getElementById("start-group-btn");
+
+    // ---- mode hint text ----
+    function updateModeHint() {
+      let text = "";
+
+      if (mode === "solo") {
+        text = "In Solo Mode, answer gently and honestly. You can speak out loud, write in a journal, or simply sit with what arises.";
+      } else if (currentDeckKey === "groupCircle") {
+        text = "In Group / Circle Mode, one person reads the card and shares. Others listen without fixing, rescuing, or correcting.";
+      } else if (currentDeckKey === "couples") {
+        text = "For Couples, let Partner A share while Partner B only listens. Then switch and reflect on what you heard with care.";
+      } else {
+        text = "In shared modes, you may answer, pass, or simply listen. Your presence in the space is already enough.";
+      }
+
+      modeHintEl.textContent = text;
+    }
+
+    // ---- mode toggle ----
+    function updateMode(newMode) {
+      mode = newMode;
+      modeButtons.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.mode === mode);
+      });
+
+      const deck = decks[currentDeckKey];
+      const modeText =
+        mode === "solo"
+          ? "<b>Solo Mode:</b> This is a conversation with yourself. Answer honestly, gently, and at your own pace."
+          : "<b>Group / Circle Mode:</b> Take turns drawing cards. Share only what feels safe. This space is for curiosity, not judgment.";
+
+      deckDescriptionEl.innerHTML =
+        `<b>${deck.name}:</b> ${deck.description}<br/><br/>${modeText}`;
+
+      statusMessage.textContent =
+        `Mode: ${mode === "solo" ? "Solo" : "Group / Circle"}. Reveal a Shift when you're ready.`;
+
+      updateModeHint();
+    }
+
+    modeButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        updateMode(btn.dataset.mode);
+      });
+    });
+
+    // ---- deck select ----
+    deckSelect.addEventListener("change", () => {
+      currentDeckKey = deckSelect.value;
+      lastIndex = null;
+
+      const deck = decks[currentDeckKey];
+      const modeText =
+        mode === "solo"
+          ? "<b>Solo Mode:</b> This is a conversation with yourself. Answer honestly, gently, and at your own pace."
+          : "<b>Group / Circle Mode:</b> Take turns drawing cards. Share only what feels safe. This space is for curiosity, not judgment.";
+
+      deckDescriptionEl.innerHTML =
+        `<b>${deck.name}:</b> ${deck.description}<br/><br/>${modeText}`;
+
+      applyDeckTheme(currentDeckKey);
+      updateModeHint();
+
+      statusMessage.textContent =
+        `Deck changed to “${deck.name}”. Click Reveal Next Shift to receive a new prompt.`;
+    });
+
+    // ---- sparkles ----
+    function triggerCardRevealMagic() {
+      if (!gameCardEl) return;
+      gameCardEl.classList.add("revealed");
+      setTimeout(() => gameCardEl.classList.remove("revealed"), 300);
+
+      const rect = gameCardEl.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 3;
+
+      const emojis = ["✨", "✧", "⭐"];
+      const colors = [
+        currentTheme.accent,
+        currentTheme.accentSoft,
+        currentTheme.accentDeep,
+        "#ffffff"
+      ];
+
+      for (let i = 0; i < 8; i++) {
+        const spark = document.createElement("span");
+        spark.className = "sparkle";
+        spark.textContent =
+          emojis[Math.floor(Math.random() * emojis.length)];
+        spark.style.color =
+          colors[Math.floor(Math.random() * colors.length)];
+        const spreadX = (Math.random() - 0.5) * rect.width * 0.6;
+        const spreadY = (Math.random() - 0.5) * 40;
+        spark.style.left = centerX + spreadX + "px";
+        spark.style.top = centerY + spreadY + "px";
+        document.body.appendChild(spark);
+        setTimeout(() => spark.remove(), 900);
+      }
+    }
+
+    // ---- draw & render card ----
+    function drawCard() {
+      const deck = decks[currentDeckKey];
+      if (!deck) {
+        statusMessage.textContent = "No deck selected.";
+        return;
+      }
+
+      if (deck.mode !== "any" && deck.mode !== mode) {
+        statusMessage.textContent =
+          `This deck (${deck.name}) is designed for ${deck.mode === "solo" ? "Solo Mode" : "Group / Circle Mode"}. Switch modes or choose another deck.`;
+        return;
+      }
+
+      const availableCards = deck.cards;
+      if (!availableCards || !availableCards.length) {
+        statusMessage.textContent = "This deck has no cards yet.";
+        return;
+      }
+
+      let index;
+      let safeCounter = 0;
+      do {
+        index = Math.floor(Math.random() * availableCards.length);
+        safeCounter++;
+      } while (index === lastIndex && safeCounter < 5);
+
+      lastIndex = index;
+      const card = availableCards[index];
+      renderCard(card);
+      triggerCardRevealMagic();
+    }
+
+    function renderCard(card) {
+      categoryEl.textContent = card.category || "Mindful Prompt";
+      levelEl.textContent = card.level ? `Level: ${card.level}` : "";
+      promptEl.textContent = card.prompt || "";
+      noteEl.textContent = card.note || "";
+
+      if (card.steps && card.steps.length) {
+        stepsWrap.style.display = "";
+        stepsList.innerHTML = "";
+        card.steps.forEach(step => {
+          const li = document.createElement("li");
+          li.textContent = step;
+          stepsList.appendChild(li);
+        });
+      } else {
+        stepsWrap.style.display = "none";
+        stepsList.innerHTML = "";
+      }
+
+      const affirmationText =
+        card.affirmation || "I am open to a new way of seeing this.";
+      affirmTextEl.textContent = affirmationText;
+      affirmPlainEl.textContent = affirmationText;
+
+      updateModeHint();
+      statusMessage.textContent = "Shift revealed. Take your time with it.";
+    }
+
+    drawBtn.addEventListener("click", drawCard);
+
+    reshuffleBtn.addEventListener("click", () => {
+      lastIndex = null;
+      statusMessage.textContent =
+        "Energy refreshed. Reveal your next Shift when you feel ready.";
+    });
+
+    // ---- start overlay ----
+    function hideStartOverlay() {
+      if (startOverlay) {
+        startOverlay.classList.add("hidden");
+      }
+    }
+
+    if (startSoloBtn) {
+      startSoloBtn.addEventListener("click", () => {
+        updateMode("solo");
+        applyDeckTheme(currentDeckKey);
+        hideStartOverlay();
+      });
+    }
+
+    if (startGroupBtn) {
+      startGroupBtn.addEventListener("click", () => {
+        updateMode("group");
+        applyDeckTheme(currentDeckKey);
+        hideStartOverlay();
+      });
+    }
+
+    // init
+    applyDeckTheme(currentDeckKey);
+    updateMode("solo");
+  </script>
+</body>
+</html>
